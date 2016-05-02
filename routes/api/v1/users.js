@@ -14,7 +14,8 @@ var basicAuth = require('../../../lib/basicAuth');
 var jwtAuth = require('../../../lib/jwtAuth');
 
 // Apply de Authentication for all middleware
-router.use(jwtAuth());
+//router.use(basicAuth('admin','1234'));
+//router.use(jwtAuth());
 
 router.post('/authenticate', basicAuth('admin','1234'), function(req, res, next) {
     var userame = req.body.username;

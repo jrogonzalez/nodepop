@@ -1,181 +1,90 @@
 /**
  * Created by iMac on 23/04/16.
  */
-let mongoose = require('mongoose');
-let express = require('express');
-let router = express.Router();
-let advertisement = mongoose.model('Advertisement');
+var mongoose = require('mongoose');
+var express = require('express');
+var router = express.Router();
+var Advertisement = mongoose.model('Advertisement');
 
-let openDb = function() {
+// Define JSON File
+var fs = require("fs");
+var path = require('path');
 
-    // Drop the 'foo' collection from the current database
-    mongoose.connection.db.dropCollection('Advertisement', function(err, result) {
-        if (err){
-            console.log('Error en el borrado de la  BBDD');
-        }else {
-            console.log('La BBDD se ha reseteado');
+var databaseOperations = function () {
+    return {
+        openDb: function () {
+            // Drop the 'foo' collection from the current database
+            Advertisement.remove({}, function (err, result) {
+                if (err) {
+                    console.log('Error en el borrado de la  BBDD');
+                } else {
+                    console.log('Advertisement database reset');
+                    initDatabase();
+
+                }
+
+            });
+
+
+
         }
+    }
+};
 
-    });
-
-    let file = path.join(__dirname, './anuncios.json');
+function initDatabase(){
+    var file = path.join(__dirname, '../data/anuncios.json');
 
     console.log("\n *STARTING* \n");
 
     // Check that the file exists locally
-    if(!fs.existsSync(file)) {
+    if (!fs.existsSync(file)) {
         console.log("File not found");
+        res.json({success: false, message: 'File not found'});
     }
-
     // The file *does* exist
     else {
-        // Read the file and do anything you want
-        content = fs.readFileSync(file, 'utf-8');
+        fs.readFile(file, 'utf-8', function (err, data) {
+            if (err) {
+                console.log('Advertisement can not be created');
+                return res.json({success: false, message: 'Error in readFile bbdd'});
+            }
+
+            var data2 = JSON.parse(data);
+
+            for (var i = 0; i < data2.anuncios.length; i++) {
+                var newAdvertisement = new Advertisement();
+                newAdvertisement.name = data2.anuncios[i].nombre;
+                newAdvertisement.sell = data2.anuncios[i].venta;
+                newAdvertisement.price = data2.anuncios[i].precio;
+                newAdvertisement.photo = data2.anuncios[i].foto;
+                newAdvertisement.tags = data2.anuncios[i].tags;
+
+                var errors = newAdvertisement.validateSync(); //Este metodo es sincrono
+                if (errors) {
+                    console.log(errors);
+                    next(new Error('Errors in User Model Validation') + errors);
+                    return;
+                }
+
+                newAdvertisement.save(function (err) {
+                    if (err) {
+                        console.log('Advertisement can not be created');
+                        next();
+                        return;
+                        //return res.json({success: false, message: 'Error in create bbdd'});
+                    } else {
+                        //console.log('Advertisement created');
+                        //return res.json({success: true, message: 'Advertisement created'});
+                    }
+                });
+            }
+        });
     }
 
+    console.log('Advertisement database initialized');
+}
 
-    console.log('traza 1' + content);
+var operations = databaseOperations();
 
-};
-
-
-router.get('/', function (req, res, next) {
-    openDb();
-
-});
-/*
-let resetDB = function(db) {
-    db.collection('coches').remove({});
-    console.log('La BBDD se ha reseteado');
-    return;
-};
-
-let resetDB = function(db) {
-    db.collection('coches').drop( function(err, response) {
-        console.log(response)
-        callback();
-    });
-};
-
-
-// INSERT
-let insertDocument = function(db, callback) {
-    db.collection('restaurants').insertOne( {
-        "address" : {
-            "street" : "2 Avenue",
-            "zipcode" : "10075",
-            "building" : "1480",
-            "coord" : [ -73.9557413, 40.7720266 ]
-        },
-        "borough" : "Manhattan",
-        "cuisine" : "Italian",
-        "grades" : [
-            {
-                "date" : new Date("2014-10-01T00:00:00Z"),
-                "grade" : "A",
-                "score" : 11
-            },
-            {
-                "date" : new Date("2014-01-16T00:00:00Z"),
-                "grade" : "B",
-                "score" : 17
-            }
-        ],
-        "name" : "Vella",
-        "restaurant_id" : "41704620"
-    }, function(err, result) {
-        assert.equal(err, null);
-        console.log("Inserted a document into the restaurants collection.");
-        callback();
-    });
-};
-
-
-MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-    insertDocument(db, function() {
-        db.close();
-    });
-});
-
-// FIND ALL
-let findRestaurants = function(db, callback) {
-    let cursor =db.collection('restaurants').find( );
-    cursor.each(function(err, doc) {
-        assert.equal(err, null);
-        if (doc != null) {
-            console.dir(doc);
-        } else {
-            callback();
-        }
-    });
-};
-
-MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-    findRestaurants(db, function() {
-        db.close();
-    });
-});
-
-// FIND WITH FILTERS
-let findRestaurants = function(db, callback) {
-    let cursor =db.collection('restaurants').find( { "borough": "Manhattan" } );
-    cursor.each(function(err, doc) {
-        assert.equal(err, null);
-        if (doc != null) {
-            console.dir(doc);
-        } else {
-            callback();
-        }
-    });
-};
-
-MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-    findRestaurants(db, function() {
-        db.close();
-    });
-});
-
-// UPDATE DATA
-let updateRestaurants = function(db, callback) {
-    db.collection('restaurants').updateOne(
-        { "name" : "Juni" },
-        {
-            $set: { "cuisine": "American (New)" },
-            $currentDate: { "lastModified": true }
-        }, function(err, results) {
-            console.log(results);
-            callback();
-        });
-};
-
-MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-
-    updateRestaurants(db, function() {
-        db.close();
-    });
-});
-
-//DELETE ALL BBDD
-let dropRestaurants = function(db, callback) {
-    db.collection('restaurants').drop( function(err, response) {
-        console.log(response)
-        callback();
-    });
-};
-
-MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-
-    dropRestaurants(db, function() {
-        db.close();
-    });
-});*/
-
-
-
-module.exports = router;
+module.exports = operations;
 

@@ -5,12 +5,11 @@
 
 
 var mongoose = require('mongoose');
-var url = 'mongodb://localhost/nodepopdb';
 var assert = require('assert');
-var db = mongoose.connect(url);
 var jwt = require('jsonwebtoken');
 var config = require('../local_config');
 var sha256 = require('sha256');
+var Error = require('./Error');
 
 var userSchema = mongoose.Schema({
     name: {
@@ -30,6 +29,7 @@ var userSchema = mongoose.Schema({
 });
 
 var User = mongoose.model('User', userSchema);
+var PushToken = mongoose.model('PushToken');
 
 var userOperations = function () {
     return {
@@ -38,6 +38,7 @@ var userOperations = function () {
             var username = req.body.username;
             var password = req.body.password;
             var email = req.body.email;
+            var plattform = req.query.platform;
 
 
             // first try to find if this user already exists en BBDD
@@ -51,7 +52,8 @@ var userOperations = function () {
                     console.log('User: ' + result);
                     if (result){
                         console.log('User: already exists in bbdd');
-                        return res.json({success: false, message: 'User: already exists in bbdd'});;
+                        //return res.json({success: false, message: 'User: already exists in bbdd'});;
+                        Error(err, req, res);
                     }else{
                         //User doesnt exists and we create it
 
@@ -79,6 +81,38 @@ var userOperations = function () {
                                 return res.json({success: false, message: 'error in create bbdd'});
                             }else{
                                 console.log('User created');
+
+                                //genero el token y esta funcion es SINCRONA
+                                var token = jwt.sign({id: user._id}, config.jwt.secret, {
+                                    expiresIn: 60 * 24 * 2       //pongo el token para que expire en 2 dias
+                                    //expiresInMinutes: '2 days'       //pongo el token para que expire en 2 dias
+                                });
+
+                                var pushToken = new PushToken();
+                                pushToken.platform = plattform;
+                                pushToken.token= token;
+                                pushToken.user= user.name;
+
+                                var errors = pushToken.validateSync(); //Este metodo es sincrono
+                                if(errors){
+                                    console.log(errors);
+                                    next(new Error('Errors in User Model Validation') + errors);
+                                    return;
+                                }
+
+                                pushToken.save(function (err) {
+                                    if (err){
+                                        console.log('pushToken can not be created');
+                                        //return res.json({success: false, message: 'Error in create bbdd'});
+                                    }else{
+                                        console.log('pushToken created');
+                                        //return res.json({success: true, message: 'Advertisement created'});
+                                    }
+                                })
+
+                                res.json({success: true, token:token});
+
+
                                 return res.json({success: true, message: 'User created'});
                             }
                         });
@@ -92,9 +126,6 @@ var userOperations = function () {
         } ,
         showUsers: function(req, res, next) {
             console.log('entering in showUsers');
-            var username = req.body.username;
-            var password = req.body.password;
-            var email = req.body.email;
 
             User.find( {}).exec(function (err, result) {
                 if (err){
@@ -109,9 +140,9 @@ var userOperations = function () {
             console.log('entering in loginUser');
             var username = req.body.username;
             var password = req.body.password;
-            var email = req.body.email;
+            var plattform = req.body.plattform;
 
-            console.log(sha256(password));
+            
             //Usamos el findOne porque solo deberia haber uno en BBDD
             User.findOne({name: username, password: sha256(password)}).exec(function (err, user) {
                 if (err){
@@ -121,7 +152,7 @@ var userOperations = function () {
                 if (!user){
                     return res.status(401).json({success: false, error: 'You are not authorized.'});
                 }
-                if (user.password !== password){  //We compare two HASH
+                if (user.password !== sha256(password)){  //We compare two HASH
                     return res.status(500).json({success: false, error: 'Incorrect Password.'});
                 }
 
@@ -129,6 +160,37 @@ var userOperations = function () {
                 var token = jwt.sign({id: user._id}, config.jwt.secret, {
                     expiresIn: 60 * 24 * 2       //pongo el token para que expire en 2 dias
                     //expiresInMinutes: '2 days'       //pongo el token para que expire en 2 dias
+                });
+
+                console.log('log1');
+                var pushToken = new PushToken();
+                pushToken.platform = plattform;
+                pushToken.token= token;
+                pushToken.user= user.name;
+
+                var errors = pushToken.validateSync(); //Este metodo es sincrono
+                if(errors){
+                    console.log(errors);
+                    next(new Error('Errors in User Model Validation') + errors);
+                    return;
+                }
+
+
+                var query = {"user": username};
+                var update = {$set: {token: token}};
+
+                PushToken.findOneAndUpdate(query, update).exec(function (err, result) {
+                    if (err){
+                        return res.json({success: false, message: 'error in search bbdd'});
+                    }else {
+                        if (result){
+                            console.log('User pushToken updated in bbdd');
+                        }else {
+
+                            console.log('User pushToken not exists in bbdd');
+                        }
+                    }
+
                 });
 
                 res.json({success: true, token:token});
