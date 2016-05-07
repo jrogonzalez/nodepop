@@ -31,10 +31,11 @@ var advertisementSchema = mongoose.Schema({
     },
     price: Number,
     photo: String,
-    tags: {
-        type: [String],
-        enum: ['work', 'lifestyle', 'motor', 'mobile']
-    }
+    tags: [{
+        type: String,
+        enum: ['work', 'lifestyle', 'motor', 'mobile'],
+        required: true
+    }]
 });
 
 // Hacer método estático
@@ -46,14 +47,15 @@ advertisementSchema.statics.list = function(filter, start, limit, sort, cb) {
     return query.exec(cb);
 };
 
+var Advertisement = mongoose.model('Advertisement', advertisementSchema);
 
 var advertisementOperations = function () {
     return {
         searchAdvertisement: function(req, res, next) {
             console.log('entering in searchAdvertisement');
-            var name = req.query.name;
-            var sell = req.query.sell;
-            var tags = req.query.tag;
+            let name = req.query.name;
+            let sell = req.query.sell;
+            let tags = req.query.tag;
 
 
             console.log('traza 1');
@@ -139,37 +141,41 @@ var advertisementOperations = function () {
 
 
         },
-         createAdvertisement: function (req, res, next) {
-            //return console.log('he entrado en el crea anuncio');
-             res.send('he entrado en el crea anunciooooooo');
+        createAdvertisement: function (req, res, next) {
+            console.log('he entrado en el crea anuncio');
+             let name = req.body.name;
+             let sell = req.body.sell;
+             let price = req.body.price;
+             let photo = req.body.photo;
+             let tags = req.body.tag;
 
             //console.log('req.query',req.body);
 
-            /*var anuncio = new anuncioModel({
-             nombre: nombre,
-             venta: venta,
-             precio: precio,
-             foto: foto,
+            let advertisement = new Advertisement({
+             name: name,
+             sell: sell,
+             price: price,
+             photo: photo,
              tags: tags
-             })
+             });
 
-             var errors = user.validateSync(); //Este metodo es sincrono
+             let errors = advertisement.validateSync(); //Este metodo es sincrono
              if(errors){
-             console.log(errors);
-             next(new Error('Errors in User Model Validation') + errors);
-             return;
+                console.log(errors);
+                return res.json({success: false, message:'Errors in User Model Validation' + errors});
+
              }
 
-             anuncio.save(function (err) {
-             if (err){
-             console.log('error en el guardado');
-             res.send('error en el guardado');
-             }else{
-             console.log('anuncio guardado en BBDD');
-             res.send('anuncio guardado en BBDD');
-             }
-             });*/
-            //next();
+             advertisement.save(function (err) {
+                 if (err){
+                    console.log('error en el guardado');
+                    res.send({success:false, message: 'error en el guardado'});
+                 }else{
+                    console.log('anuncio guardado en BBDD');
+                    res.send({success:true, message:'anuncio guardado en BBDD'});
+                 }
+             });
+            
 
         },
         showAdevertisement: function (req, res, next) {
@@ -206,24 +212,23 @@ var advertisementOperations = function () {
                         var errors = newAdvertisement.validateSync(); //Este metodo es sincrono
                         if(errors){
                             console.log(errors);
-                            next(new Error('Errors in User Model Validation') + errors);
-                            return;
+                            return res.json({success:false, message:'Errors in Advertisement Model Validation' + errors});
                         }
 
                         newAdvertisement.save(function (err) {
                             if (err){
                                 console.log('Advertisement can not be created');
-                                //return res.json({success: false, message: 'Error in create bbdd'});
+                                return res.json({success: false, message: 'Error in create bbdd'});
                             }else{
                                 console.log('Advertisement created');
-                                //return res.json({success: true, message: 'Advertisement created'});
+                                return res.json({success: true, message: 'Advertisement created'});
                             }
                         });
                     }
                 });
             }
 
-            res.json({success: true, message: 'Advertisement created'});
+
 
             // Define to JSON type
             //var jsonContent = JSON.stringify(content);
@@ -290,21 +295,15 @@ var advertisementOperations = function () {
                         if (salida.indexOf(elem) === -1){
                             salida.push(elem);
                         }
-
                     }
-
                 }
-
                 res.json({success: true, rows: salida});
-
-
-
             });
         }
     }
 };
 
-var Advertisement = mongoose.model('Advertisement', advertisementSchema);
+
 
 var operations = advertisementOperations();
 

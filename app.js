@@ -12,18 +12,21 @@ var bodyParser = require('body-parser');
 
 var app = express();
 
-// Make a require for BBDD connection
-require('./lib/connectMongoose');
+// Obtengo el lenguaje leyendo cabecera x-lang
+app.use((req, res, next) => {
+  req.lang = req.get('x-lang') || 'en';
+  next();
+});
+
 
 // Models
-require('./models/PushToken');
 require('./models/User');
+require('./models/PushToken');
 require('./models/Advertisement');
 
 
-// Initialize database
-var database = require('./data/install_db');
-database.openDb();
+// Make a require for BBDD connection
+require('./lib/connectMongoose');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -43,6 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //app.use('/', require('./data/install_db'));
 app.use('/api/v1/users', require('./routes/api/v1/users'));
 app.use('/api/v1/advertisements', require('./routes/api/v1/advertisements'));
+app.use('/api/v1/pushTokens', require('./routes/api/v1/pushTokens'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

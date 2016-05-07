@@ -15,37 +15,22 @@ var jwtAuth = require('../../../lib/jwtAuth');
 
 // aplicamos la autorizacion a todo el router
 
-router.use(basicAuth('admin','1234'));
-router.use(jwtAuth());
+//router.use(basicAuth('admin','1234'));
+//router.use(jwtAuth());
 
-router.get('/searchAdvertisement', function (req, res, next) {
+router.get('/searchAdvertisement', jwtAuth(),function (req, res, next) {
    Adv.searchAdvertisement(req, res, next);
     
 });
 
 
-router.post('/createAdvertisement', function (req, res, next) {
-    var advertisement = new AAA(req.body);
-    console.log(advertisement);
+router.post('/createAdvertisement', jwtAuth(),function (req, res, next) {
+    console.log('Entering in createAdvertisement');
+    Adv.createAdvertisement(req, res, next);
 
-
-    var errors = advertisement.validateSync(); //Este metodo es sincrono
-    if(errors){
-        console.log(errors);
-        next(new Error('Hubo errores en la validacion') + errors);
-        return;
-    }
-
-    advertisement.save(function (err, saved) {
-        if (err){
-            next(err);    //ha habido un error y le digo a express que siga al siguiente middleware pero como es un error entonces lo que hace es ir directamete al de errr
-            return;
-        }
-        res.json({sucess: true, saved: saved});
-    });
 });
 
-router.get('/showAdevertisementFromFile', function (req, res, next) {
+router.get('/showAdevertisementFromFile', jwtAuth(),function (req, res, next) {
     console.log('Entering in showAdevertisementFromFile');
     Adv.showAdevertisementFromFile(req, res, next);
 });

@@ -20,9 +20,17 @@ var port = require('../package.json').scripts.port;
 var port = normalizePort(port || '3000');
 app.set('port', port);
 
-var cluster = require('cluster');
+/*var cluster = require('cluster');
 
-/*if (cluster.isMaster){
+cluster.on('exit', function(worker, code, signal) {
+  console.log('Worker' + worker.process.pid +
+    ' died with code' + code +
+    ', and signal' + signal);
+  console.log('Starting a new worker');
+  cluster.fork();
+}
+
+if (cluster.isMaster){
   // soy master y voy a lanzar mis cleones
 
   let numCPUs = require('os').cpus().length;

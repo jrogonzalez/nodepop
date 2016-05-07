@@ -17,7 +17,7 @@ var jwtAuth = require('../../../lib/jwtAuth');
 //router.use(basicAuth('admin','1234'));
 //router.use(jwtAuth());
 
-router.post('/authenticate', basicAuth('admin','1234'), function(req, res, next) {
+router.post('/authenticate', function(req, res, next) {
     var userame = req.body.username;
     var password = req.body.password;
     var email = req.body.email;
@@ -43,7 +43,7 @@ router.post('/createUser', function(req, res, next) {
 
 });
 
-router.delete('/removeUser', basicAuth('admin','1234'), function(req, res, next) {
+router.delete('/removeUser', jwtAuth(), function(req, res, next) {
     var userame = req.body.username;
     var password = req.body.password;
     var email = req.body.email;
@@ -56,7 +56,7 @@ router.delete('/removeUser', basicAuth('admin','1234'), function(req, res, next)
 
 });
 
-router.put('/updateUser', basicAuth('admin','1234'), function(req, res, next) {
+router.put('/updateUser', jwtAuth(), function(req, res, next) {
     var userame = req.body.username;
     var password = req.body.password;
     var email = req.body.email;
@@ -69,7 +69,7 @@ router.put('/updateUser', basicAuth('admin','1234'), function(req, res, next) {
 
 });
 
-router.get('/showUsers', basicAuth('admin','1234'), function(req, res, next) {
+router.get('/showUsers', jwtAuth(), function(req, res, next) {
     var username = req.body.username;
     var password = req.body.password;
     var email = req.body.email;

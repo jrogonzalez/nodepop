@@ -8,6 +8,7 @@ function returnError(err, req, res){
     var lang = req.query.language;
     var message = '';
     message = langProperties.en.error1;
+    //res.status(sta).json(mensaje traducido con req.lang)
     res.json({success: false, message: message});
 
 }

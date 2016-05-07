@@ -12,14 +12,14 @@ var path = require('path');
 
 var databaseOperations = function () {
     return {
-        openDb: function () {
+        openDb: function (req, res, next) {
             // Drop the 'foo' collection from the current database
-            Advertisement.remove({}, function (err, result) {
+            Advertisement.remove({}).exec(function (err, result) {
                 if (err) {
                     console.log('Error en el borrado de la  BBDD');
                 } else {
                     console.log('Advertisement database reset');
-                    initDatabase();
+                    initDatabase(req, res, next);
 
                 }
 
@@ -31,7 +31,8 @@ var databaseOperations = function () {
     }
 };
 
-function initDatabase(){
+
+function initDatabase(req, res, next){
     var file = path.join(__dirname, '../data/anuncios.json');
 
     console.log("\n *STARTING* \n");
@@ -62,15 +63,13 @@ function initDatabase(){
                 var errors = newAdvertisement.validateSync(); //Este metodo es sincrono
                 if (errors) {
                     console.log(errors);
-                    next(new Error('Errors in User Model Validation') + errors);
-                    return;
+                    return res.json({success:false, message:'Errors in Advertisement Model Validation' + errors});
                 }
 
                 newAdvertisement.save(function (err) {
                     if (err) {
-                        console.log('Advertisement can not be created');
-                        next();
-                        return;
+                        return console.log('Advertisement load error: ' + newAdvertisement.name + ' can not be created:' + err);
+                        //return res.json({success:false, message:'Advertisement can not be created' + err});
                         //return res.json({success: false, message: 'Error in create bbdd'});
                     } else {
                         //console.log('Advertisement created');

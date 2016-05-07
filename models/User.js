@@ -20,16 +20,20 @@ var userSchema = mongoose.Schema({
     password: {
         type: String,
         required: true
-    } ,
+    },
     email: {
         type: String,
         required: true,
-        unique: true
-    }
+        unique: true,
+        index: true
+    },
+    pushToken:[{
+        type: String,
+        required: false
+    }]
 });
 
 var User = mongoose.model('User', userSchema);
-var PushToken = mongoose.model('PushToken');
 
 var userOperations = function () {
     return {
@@ -42,21 +46,19 @@ var userOperations = function () {
 
 
             // first try to find if this user already exists en BBDD
-            //var collection = db.collection("users");
-
             console.log('traza 3');
-            User.findOne({ "name": username, "password": sha256(password), "email": email}).exec(function (err, result) {
+            User.findOne({ "name": username, "email": email}).exec(function (err, result) {
                 if (err){
-                    console.log('Error al buscar el usuario: ' + username)
+                    console.log('Error al buscar el usuario: ' + username);
+                    return res.json({success: false, message: 'Error creating user'});
                 }else{
                     console.log('User: ' + result);
                     if (result){
                         console.log('User: already exists in bbdd');
-                        //return res.json({success: false, message: 'User: already exists in bbdd'});;
-                        Error(err, req, res);
+                        return res.json({success: false, message: 'User: already exists in bbdd'});;
+                        //TODO Internacionalizar mensaje Error(err, req, res);
                     }else{
                         //User doesnt exists and we create it
-
                         // We do a HASH algorithm with the password
                         var passSHA = sha256(password);
                         console.log(passSHA);
@@ -70,8 +72,7 @@ var userOperations = function () {
                         var errors = user.validateSync(); //Este metodo es sincrono
                         if(errors){
                             console.log(errors);
-                            next(new Error('Errors in User Model Validation') + errors);
-                            return;
+                            return res.json({success:false, message:'Errors in User Model Validation' + errors});
                         }
 
                         console.log(user);
@@ -79,8 +80,11 @@ var userOperations = function () {
                             if (err){
                                 console.log('User can not be created');
                                 return res.json({success: false, message: 'error in create bbdd'});
+                                //TODO Internacionalizar mensaje Error(err, req, res);
                             }else{
                                 console.log('User created');
+
+                                /*
 
                                 //genero el token y esta funcion es SINCRONA
                                 var token = jwt.sign({id: user._id}, config.jwt.secret, {
@@ -96,8 +100,7 @@ var userOperations = function () {
                                 var errors = pushToken.validateSync(); //Este metodo es sincrono
                                 if(errors){
                                     console.log(errors);
-                                    next(new Error('Errors in User Model Validation') + errors);
-                                    return;
+                                    return res.json({success:false, message:'Errors in User Model Validation' + errors});
                                 }
 
                                 pushToken.save(function (err) {
@@ -111,7 +114,7 @@ var userOperations = function () {
                                 })
 
                                 res.json({success: true, token:token});
-
+                                 */
 
                                 return res.json({success: true, message: 'User created'});
                             }
@@ -162,7 +165,9 @@ var userOperations = function () {
                     //expiresInMinutes: '2 days'       //pongo el token para que expire en 2 dias
                 });
 
-                console.log('log1');
+                res.json({success: true, token:token});
+
+                /*console.log('log1');
                 var pushToken = new PushToken();
                 pushToken.platform = plattform;
                 pushToken.token= token;
@@ -171,8 +176,7 @@ var userOperations = function () {
                 var errors = pushToken.validateSync(); //Este metodo es sincrono
                 if(errors){
                     console.log(errors);
-                    next(new Error('Errors in User Model Validation') + errors);
-                    return;
+                    return res.json({success:false, message:'Errors in User Model Validation' + errors});
                 }
 
 
@@ -192,8 +196,9 @@ var userOperations = function () {
                     }
 
                 });
+                */
 
-                res.json({success: true, token:token});
+
             });
         },
         removeUser: function (req, res, next) {
@@ -243,6 +248,7 @@ var userOperations = function () {
         }
     }
 }
+
 
 var operations = userOperations();
 
