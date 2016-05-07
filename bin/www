@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-'use strict';
+"use strict";
 
 
 /**
@@ -8,32 +8,17 @@
 
 var app = require('../app');
 var debug = require('debug')('nodepop.js:server');
-
-
 var http = require('http');
+
 var port = require('../package.json').scripts.port;
-
-
 
 /**
  * Get port from environment and store in Express.
  * process.env.PORT
-*/
+ */
 
 var port = normalizePort(port || '3000');
 app.set('port', port);
-
-
-var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
-*/
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
 
 /*var cluster = require('cluster');
 
@@ -57,37 +42,19 @@ if (cluster.isMaster){
 
 }else{
 */
-
-/**
-var https = require('https');
-var portSSL = require('../package.json').scripts.portSSL;
-var portSSL = normalizePort(portSSL || '443');
-app.set('portSSL', portSSL);
-
   /**
    * Create HTTP server.
+   */
 
+  var server = http.createServer(app);
 
-  var fs = require('fs');
-  var options = {
-    key: fs.readFileSync('certificates/host.key'),
-    cert: fs.readFileSync('certificates/host.cert')
-  };
-
-  var serverSSL = https.createServer(options, app);
   /**
-   * Listen on provided SSL port, on all network interfaces.
+   * Listen on provided port, on all network interfaces.
+   */
 
-
-  serverSSL.listen(portSSL);
-  serverSSL.on('error', onErrorSSL);
-  serverSSL.on('listening', onListeningSSL);
-
- */
-
-
-
-
+  server.listen(port);
+  server.on('error', onError);
+  server.on('listening', onListening);
 /*
 }
 */
@@ -141,34 +108,6 @@ function onError(error) {
 }
 
 /**
- * Event listener for HTTPSSL server "error" event.
- */
-
-function onErrorSSL(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof portSSL === 'string'
-      ? 'Pipe ' + portSSL
-      : 'PortSSL ' + portSSL;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
  * Event listener for HTTP server "listening" event.
  */
 
@@ -177,17 +116,5 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
-
-/**
- * Event listener for HTTPS server "listening" event.
- */
-
-function onListeningSSL() {
-  var addr = serverSSL.address();
-  var bind = typeof addr === 'string'
-      ? 'pipe ' + addr
-      : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
