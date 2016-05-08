@@ -1,0 +1,60 @@
+/**
+ * Created by iMac on 07/05/16.
+ */
+
+{
+  "name": "Nodepop API",
+  "description": "An example api.",
+  "protocol": "rest",
+  "basePath": "http://api.lowercase.sample.com",
+  "publicPath": "/v1",
+  "auth": {
+    "key": {
+      "param": "key"
+    }
+  },
+  "headers": {
+    "Accept": "application/json",
+    "Foo": "bar"
+  },
+  "resources": {
+    "Resource Group A": {
+      "methods": {
+        "MethodA1": {
+          "name": "Method A1",
+          "path": "/a1/grab",
+          "httpMethod": "GET",
+          "description": "Grabs information from the A1 data set.",
+          "parameters": {
+            "param1": {
+              "type": "string",
+              "required": true,
+              "default": "",
+              "description": "Description of the first parameter."
+            }
+          }
+        },
+        "MethodA1User": {
+          "name": "Method A1 User",
+          "path": "/a1/grab/{userId}",
+          "httpMethod": "GET",
+          "description": "Grabs information from the A1 data set for a specific user",
+          "parameters": {
+            "param1": {
+              "type": "string",
+              "required": true,
+              "default": "",
+              "description": "Description of the first parameter."
+            },
+            "userId": {
+              "type": "string",
+              "required": true,
+              "default": "",
+              "description": "The userId parameter that is in the URI."
+            }
+          }
+        }
+      }
+    }
+  }
+}

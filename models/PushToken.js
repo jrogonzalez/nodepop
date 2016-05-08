@@ -1,9 +1,10 @@
 /**
  * Created by iMac on 24/04/16.
  */
-"use strict";
+'use strict';
 
 var mongoose = require('mongoose');
+var Error = require('./Error');
 
 var pushTokenSchema = mongoose.Schema({
     plattform: {
@@ -22,9 +23,9 @@ var PushToken = mongoose.model('PushToken', pushTokenSchema);
 
 var User = mongoose.model('User');
 
-var operationsPushToken = function () {
+var operationsPushToken = function() {
     return {
-        createPushToken: function (req, res, next) {
+        createPushToken: function(req, res) {
             let user = req.body.username;
             let pt = req.body.pushToken;
             let plattform = req.body.plattform;
@@ -34,87 +35,87 @@ var operationsPushToken = function () {
                 pushToken: pt,
                 user: user
             });
-
             var errors = pushToken.validateSync(); //Este metodo es sincrono
             if (errors) {
-                console.log(errors);
-                return res.json({success: false, message: 'Errors in PushToken Model Validation' + errors});
+                return Error('err006', req, res, 400);
 
             }
 
-            pushToken.save(function (err) {
+            pushToken.save(function(err) {
                 if (err) {
-                    console.log('Error creating pushToken');
-                    return res.json({success: false, message: 'Error creating pushToken'});
+                    return Error('err007', req, res, 400);
                 }
-                console.log('pushToken created');
 
-                var query = {"name": user};
-                var update = {$push: {pushToken: pt, new:true}};
+                var query = {'name': user};
+                var update = {$push: {pushToken: pt, new: true}};
 
-                User.findOneAndUpdate(query, update).exec(function (err, result) {
-                    if (err) {
-                        return res.json({success: false, message: 'error in search bbdd'});
-                    } else {
-                        if (result) {
-                            console.log('User pushToken updated in bbdd');
-                            res.json({success: true, message: 'User pushToken updated in bbdd'});
+
+
+                if (typeof user !== 'undefined'){
+
+                    User.findOneAndUpdate(query, update).exec(function(err, result) {
+                        if (err) {
+                            return Error('err002', req, res, 400);
                         } else {
-
-                            console.log('User pushToken not exists in bbdd');
-                            res.json({success: false, message: 'User pushToken not exists in bbdd'});
+                            console.log('resul', result);
+                            if (result) {
+                                res.json({success: true, message: 'PushToken created and User pushToken updated in bbdd'});
+                            } else {
+                                res.json({success: true, message: 'PushToken created in bbdd'});
+                            }
                         }
-                    }
-
-                });
+                    });
+                }else{
+                    res.json({success: true, message: 'PushToken created in bbdd'});
+                }
 
 
             });
         },
-        removePushToken: function (req, res, next) {
+        removePushToken: function(req, res) {
             let user = req.body.username;
             let pt = req.body.pushToken;
-            let plattform = req.body.plattform;
 
-            PushToken.remove({"pushToken": pt}).exec(function (err, result) {
+            if (typeof pt === 'undefined'){
+                return Error('err020', req, res, 500);
+            }
+
+            PushToken.remove({'pushToken': pt}).exec(function(err, result) {
                 if (err) {
-                    return res.json({success: false, message: 'error in search bbdd'});
+                    return Error('err002', req, res, 400);
                 } else {
                     if (result) {
-                        console.log('PushToken removed from bbdd');
-
-                        var query = {"name": user};
+                        var query = {'name': user};
                         var update = {$pull: {pushToken: pt}};
 
-                        User.update(query, update).exec(function (err, result) {
-                            if (err) {
-                                return res.json({success: false, message: 'error in search bbdd'});
-                            } else {
-                                console.log('results: ' ,result);
-                                if (result) {
-                                    console.log('User pushToken removed in bbdd');
-                                    return res.json({success: true, message: 'User pushToken removed in bbdd'});
+                        if (typeof user !== 'undefined'){
+
+                            User.update(query, update).exec(function(err, result) {
+                                if (err) {
+                                    return Error('err002', req, res, 400);
                                 } else {
-
-                                    console.log('User pushToken not exists in bbdd');
-                                    return res.json({success: false, message: 'User pushToken not exists in bbdd'});
+                                    if (result) {
+                                        return res.json({success: true, message: 'PushToken and User pushToken removed in bbdd'});
+                                    } else {
+                                        return res.json({success: true, message: 'PushToken removed in bbdd'});
+                                    }
                                 }
-                            }
 
-                        });
+                            });
+                        }else{
+                            return res.json({success: true, message: 'PushToken removed in bbdd'});
+                        }
+
 
                     } else {
-
-                        console.log('PushToken not exists in bbdd');
-                        return res.json({success: false, message: 'PushToken not exists in bbdd'});
+                        return Error('err009', req, res, 400);
                     }
                 }
             });
         }
-    }
-}
+    };
+};
 
 var operations = operationsPushToken();
 
 module.exports = operations;
-

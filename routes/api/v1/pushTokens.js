@@ -1,21 +1,20 @@
 /**
  * Created by iMac on 07/05/16.
  */
-"use strict";
+'use strict';
 
 var express = require('express');
 var router = express.Router();
-
-var mongoose = require('mongoose');
 var PushToken = require('./../../../models/PushToken');
 
-router.post('/createPushToken', function (req, res, next) {
-    console.log('entering in createPushToken');
+// Auth
+var jwtAuth = require('../../../lib/jwtAuth');
+
+router.post('/createPushToken', function(req, res, next) {
     PushToken.createPushToken(req, res, next);
 });
 
-router.delete('/removePushToken', function (req, res, next) {
-    console.log('entering in createPushToken');
+router.delete('/removePushToken', jwtAuth(),function(req, res, next) {
     PushToken.removePushToken(req, res, next);
 });
 

@@ -1,0 +1,48 @@
+{
+    "anuncios": [
+        {
+            "nombre": "Bicicleta",
+            "venta": true,
+            "precio": 230.15,
+            "foto": "http://localhost:3000/images/bici.jpeg",
+            "tags": [ "lifestyle", "motor"]
+        },
+        {
+            "nombre": "iPhone 3GS",
+            "venta": false,
+            "precio": 50.00,
+            "foto": "http://localhost:3000/images/iphone.jpeg",
+            "tags": [ "lifestyle", "mobile"]
+        }, {
+            "nombre": "Bicicleto",
+            "venta": true,
+            "precio": 230.15,
+            "foto": "http://localhost:3000/images/bici.jpeg",
+            "tags": [ "mobile", "motor"]
+        },{
+            "nombre": "1Bicicleta",
+            "venta": false,
+            "precio": 10.15,
+            "foto": "http://localhost:3000/images/bici.jpeg",
+            "tags": [ "mobile", "motor"]
+        },{
+            "nombre": "Bicicletaaaaa",
+            "venta": true,
+            "precio": 3000.15,
+            "foto": "http://localhost:3000/images/bici.jpeg",
+            "tags": [ "motor"]
+        },{
+            "nombre": "3Bicicleta",
+            "venta": false,
+            "precio": 111.15,
+            "foto": "http://localhost:3000/images/bici.jpeg",
+            "tags": [ "work", "motor"]
+        },{
+            "nombre": "4Bicicleta",
+            "venta": true,
+            "precio": 80.15,
+            "foto": "http://localhost:3000/images/bici.jpeg",
+            "tags": [ "work", "motor"]
+        }
+    ]
+}

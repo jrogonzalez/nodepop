@@ -1,0 +1,32 @@
+{
+    "usuarios": [
+
+        {
+            "nombre": "Anakin",
+            "contrasenia": "anakin",
+            "mail": "anakin@gmail.com",
+            "pushtoken": []
+        },
+        {
+            "nombre": "Leia",
+            "contrasenia": "leia",
+            "mail": "leia@gmail.com",
+            "pushtoken": []
+        }, {
+            "nombre": "Chewbacca",
+            "contrasenia": "chewbacca",
+            "mail": "chewbacca@gmail.com",
+            "pushtoken": []
+        },{
+            "nombre": "Yoda",
+            "contrasenia": "yoda",
+            "mail": "yoda@gmail.com",
+            "pushtoken": []
+        },{
+            "nombre": "Darth Vader",
+            "contrasenia": "darthvader",
+            "mail": "darthvader@gmail.com",
+            "pushtoken": []
+        }
+    ]
+}
