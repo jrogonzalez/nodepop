@@ -1,10 +1,9 @@
 Practica DevOps: 
-    Ejercicio 1: 
-        - URL nodepop: http://ec2-52-2-169-225.compute-1.amazonaws.com/api/v1/advertisements/tagList (ejemplo de llamada al metodo tagList)
-        - URL staticos nodepop: http://ec2-52-2-169-225.compute-1.amazonaws.com/images/iphone.jpeg
-                                http://ec2-52-2-169-225.compute-1.amazonaws.com/images/bici.jpeg
-    Ejercicio 2:
-        - URL bootstrap: http://52.2.169.225/
+Ejercicio 1: 
+    - URL nodepop: http://ec2-52-2-169-225.compute-1.amazonaws.com/api/v1/advertisements/tagList (ejemplo de llamada al metodo tagList)
+    - URL staticos nodepop: http://ec2-52-2-169-225.compute-1.amazonaws.com/images/iphone.jpeg y http://ec2-52-2-169-225.compute-1.amazonaws.com/images/bici.jpeg
+Ejercicio 2:
+    - URL bootstrap: http://52.2.169.225/
 
 Nodepop API Information.
 
