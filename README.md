@@ -1,3 +1,11 @@
+Practica DevOps: 
+    Ejercicio 1: 
+        - URL nodepop: http://ec2-52-2-169-225.compute-1.amazonaws.com/api/v1/advertisements/tagList (ejemplo de llamada al metodo tagList)
+        - URL staticos nodepop: http://ec2-52-2-169-225.compute-1.amazonaws.com/images/iphone.jpeg
+                                http://ec2-52-2-169-225.compute-1.amazonaws.com/images/bici.jpeg
+    Ejercicio 2:
+        - URL bootstrap: http://52.2.169.225/
+
 Nodepop API Information.
 
 1- Existe un comando introducido en el package.json que se llama installDB que de debe ejecutar desde consola antes de arrancar la aplicacion. El comando a ejecutar es el siguiente
